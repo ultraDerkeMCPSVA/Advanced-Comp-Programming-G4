@@ -11,7 +11,7 @@
 
 import sys
 
-class DVUtil:
+class dvUtil:
     #
     #   int_cast
     #   Safe version of performing int(x)
