@@ -11,6 +11,10 @@
 
 import sys
 
+def exit_message(message):
+    print(message)
+    sys.exit()
+
 class dvUtil:
     #
     #   int_cast
@@ -18,12 +22,11 @@ class dvUtil:
     #
     
     @staticmethod
-    def int_cast(x):
+    def int_cast(x, exit_on_error = True):
         try:
             return int(x)
         except:
-            print("expected integer! aborting!")
-            sys.exit()
+            if exit_on_error: exit_message(f"Expected integer but got {type(x)}!")
             return None
     #
     #   input_to_int
@@ -31,14 +34,27 @@ class dvUtil:
     #
     
     @staticmethod
-    def input_to_int(x):
+    def input_to_int(x, exit_on_error = True):
         try:
             return int(input(x))
         except:
-            print("expected integer! aborting!")
-            sys.exit()
+            if exit_on_error: exit_message(f"Expected integer but got {type(x)}!")
             return None
 
+    #
+    #   input_to_float
+    #   Safe version of performing int(input(x))
+    #
+    
+    @staticmethod
+    def input_to_float(x, exit_on_error = True):
+        try:
+            return float(input(x))
+        except:
+            if exit_on_error: exit_message(f"Expected float but got {type(x)}!")
+            return None
+
+    #   TODO!!!
     @staticmethod
     def tokenize(x):
         pass

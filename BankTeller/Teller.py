@@ -13,61 +13,42 @@
 #           + log_out - log out of bank teller
 #       will try to comment code more within the following days. (dv)
 #
+#       Sep-03-26: moved dvAccount class into Account.py. added wrappers for
+#       dvAccount functions:
+#           + deposit, withdraw, transfer
+#       added new function
+#           + log_out - log out of bank teller so we can log in again.
+#       in general, this program is a lot more functional than it was just a few
+#       days ago. now you can sign in and out of accounts, and perform all necessary
+#       bank account operations. i hope to add writing to files next week. (dv)
+#
 
-import sys
 from dvutil import dvUtil
 
-account_registry = {}
-logged_in = False
+import Account
+import sys
+
+# Account registry for storing and looking up accounts.
+account_registry = {"0" : Account.dvAccount("0", "test", 3.00)}
+Account.reg_dict = account_registry
+
+# Global ID for generating account IDs.
 global_id = 0
 
-def check_for_account(account_id):
-    return None
+# Pointer to the account we're currently signed into.
+current_account = None
 
-class dvAccount:
-    def __init__(self, number, name, balance):
-        self.m_num = number
-        self.m_name = name
-        self.m_balance = balance
-        
-    def deposit(self):
-        num = dvUtil.input_to_int("Enter how much you would like to deposit\n"
-                                  "into your account\n"
-                                  "--> ")
-        self.m_balance += num
-        print(f"Added ${num} to your account.\nBalance is now {self.m_balance}.")
-
-    def withdraw(self):
-        num = dvUtil.input_to_int("Enter how much you would like to withdraw\n"
-                                  "from your account\n"
-                                  "--> ")
-        if (self.m_balance - num) < 0:
-            print("Cannot overdraw from account!")
-            return
-        self.m_balance -= num
-        print(f"Withdrew ${num} from your account.\nBalance is now {self.m_balance}.")
-
-    def transfer(self):
-        acc = check_for_account(input("Enter account id to transfer into\n"
-                                      "--> "))
-        if acc is None:
-            return
-        if (self.m_balance - num) < 0:
-            print("Cannot overdraw from account!")
-            return
-
-        self.m_balance, acc.m_balance = self.m_balance - num, acc.m_balance - num
-        print(f"transfered {num} from your account into user \"{acc.m_name}\"'s account.")
-
-current_account = dvAccount(0, "", 0)
-
-def write_to_file():
-    pass
+#
+#   Name:
+#       sign_up
+#   Description:
+#       create an account for the bank.
+#
 
 def sign_up():
-    global global_id, logged_in
+    global global_id, account_registry, current_account
 
-    print("\nWelcome to the dvBankTeller Sign-Up page!")
+    print("Welcome to the dvBankTeller Sign-Up page!")
     
     global_id += 1
     id_string = f"{global_id:06d}"
@@ -76,7 +57,8 @@ def sign_up():
         name = input("Enter account name here. This information\n"
                      "will be used during the log-in process.\n"
                      "--> ")
-        balance = dvUtil.input_to_int("Enter your desired starting balance.\n"
+        
+        balance = dvUtil.input_to_float("Enter your desired starting balance.\n"
                                       "--> ")
 
         check = input("\nNew Account details:\n"
@@ -87,46 +69,123 @@ def sign_up():
                       "the sign up process. Otherwise, press \"N\" to restart the\n"
                       "sign-up process.\n"
                       "--> ")
+        
         if check.capitalize() == "N":
             continue
         
-        account_registry[id_string] = {dvAccount(id_string, name, balance)}
+        print("\nThank you for signing up for dvBankTeller!\n")
+
+        account_registry[id_string] = Account.dvAccount(id_string, name, balance)
         current_account = account_registry[id_string]
-        logged_in = True
         break
 
-def log_in():
-    name = input("enter account id.")
-    try:
-        account_name = account_registry[id_string]
-    except:
-        print("id does not exist!!")
+#
+#   Name:
+#       log_in
+#   Description:
+#       Sign into your bank account.
+#
 
-login_modes = (current_account.deposit, current_account.withdraw, current_account.transfer, None)
-logout_modes = (log_in, sign_up)
+def log_in():
+    global account_registry, current_account
+    
+    name = input("Enter account id.\n"
+                 "--> ")
+    
+    if name in account_registry:
+        current_account = account_registry[name]
+        print(f"\nSuccesfully logged into: {current_account.m_name}\n")
+    else:
+        print("Given account id does not exist\n"
+              "in bank database!\n")
+
+#
+#   Name:
+#       logout
+#   Description:
+#       Sign out of your current bank account.
+#
+
+def logout():
+    global current_account
+    
+    check = input("Are you sure you would like to\n"
+                  "sign out of your account?\n"
+                  "If no, type \"N\", otherwise press\n"
+                  "any key to continue.\n"
+                  "--> "
+        )
+    
+    if check.capitalize() != "N":
+        print("\nYou have been logged out of your account.\n")
+        current_account = None
+
+#
+#   Safe wrappers for dvAccount methods, incase current_account
+#   returns as nullptr/None (dv)
+#
+
+def deposit():
+    if current_account: current_account.deposit()
+def withdraw():
+    if current_account: current_account.withdraw()
+def transfer():
+    if current_account: current_account.transfer()
+
+#
+#   Global function pointer table.
+#
+
+login_modes = (
+        deposit,
+        withdraw,
+        transfer,
+        logout,
+        sys.exit
+    )
+
+logout_modes = (
+        log_in,
+        sign_up,
+        sys.exit
+    )
+
+#
+#   Name:
+#       main
+#   Description:
+#       Primary main while loop for using the bankTeller.
+#
 
 def main():
     print("Welcome to the dvBankTeller!")
     while 1:
-        if logged_in:
-            cur_modes = login_modes
-            mode = dvUtil.input_to_int("Enter mode:\n"
+        if current_account:
+            function_table = login_modes
+            mode = dvUtil.input_to_int(f"Logged in as: {current_account.m_name}\n"
+                                       f"Balance: ${current_account.m_balance}, ID: #{current_account.m_num}\n"
+                                       "Enter mode:\n"
                                        "1. Deposit.\n"
                                        "2. Withdraw.\n"
                                        "3. Transfer.\n"
-                                       "3. Logout.\n"
+                                       "4. Logout.\n"
+                                       "5. Quit\n"
                                        "--> ",)
         else:
-            cur_modes = logout_modes
+            function_table = logout_modes
             mode = dvUtil.input_to_int("Enter mode:\n"
                                        "1. Log in.\n"
                                        "2. Sign up.\n"
+                                       "3. Quit\n"
                                        "--> ",)
-        if mode > len(cur_modes) or mode < 1:
-            print("invalid mode given")
+
+        # check for validity of input!
+        if mode is None or (mode > len(function_table) or mode < 1):
+            print("Invalid mode given!\n")
             continue
-        cur_modes[mode-1]()
-    print("\n") # add white-space after every loop.
+        
+        print("\n", end="")
+        function_table[mode-1]()
 
 if __name__ == "__main__":
     main()
