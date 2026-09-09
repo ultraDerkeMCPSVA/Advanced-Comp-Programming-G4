@@ -53,7 +53,7 @@ class dvAccount:
                                   "--> ")
         
         if (self.m_balance - num) < 0:
-            print("Cannot overdraw from account!")
+            print("\nCannot overdraw from account!\n")
             return
         
         self.m_balance -= num
@@ -66,14 +66,14 @@ class dvAccount:
             print("Given account id does not exist.")
             return
 
-        num = dvUtil.input_to_float("Enter how much you would like to deposit\n"
-                                  "into your account\n"
+        num = dvUtil.input_to_float("Enter how much you would like to transfer\n"
+                                  f"into {acc.m_name}'s account\n"
                                   "--> ")
         
         if (self.m_balance - num) < 0:
-            print("Cannot overdraw from account!")
+            print("\nCannot overdraw from account!\n")
             return
 
         self.m_balance, acc.m_balance = self.m_balance - num, acc.m_balance - num
         print(f"\nSuccesfully Transfered ${num:.2f} from your account\n"
-              f"into user \"{acc.m_name}\"'s account.\n")
+              f"into {acc.m_name}'s account.\n")

@@ -63,7 +63,7 @@ def sign_up():
 
         check = input("\nNew Account details:\n"
                       f"-> Name: {name}\n"
-                      f"-> Balance: ${balance}\n"
+                      f"-> Balance: ${balance:.2f}\n"
                       f"-> ID is #{id_string}\n"
                       "If these details are correct, press any key to continue\n"
                       "the sign up process. Otherwise, press \"N\" to restart the\n"
@@ -163,7 +163,7 @@ def main():
         if current_account:
             function_table = login_modes
             mode = dvUtil.input_to_int(f"Logged in as: {current_account.m_name}\n"
-                                       f"Balance: ${current_account.m_balance}, ID: #{current_account.m_num}\n"
+                                       f"Balance: ${current_account.m_balance:.2f}, ID: #{current_account.m_num}\n"
                                        "Enter mode:\n"
                                        "1. Deposit.\n"
                                        "2. Withdraw.\n"
