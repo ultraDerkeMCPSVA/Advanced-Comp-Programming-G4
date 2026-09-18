@@ -7,21 +7,38 @@
 #       Derek Vuong (dv)
 #   Revision History:
 #       Sep-14-26: finished this assignment. could i have formatted
-#       and commented this a bit better? perhaps. hehehe (dv)
+#       and commented this a bit better? perhaps. hehehe. (dv)
+#           micro update - simplified append implementation!!!!
+#
+#       Sep-16-26: cleaned up my impl. of append and remove linkedlist
+#       functions. also added some more comments to the code to clear up
+#       stuff... (derek)
 #
 
 
 from dvlib.dvutil import dvUtil
 
 class Node:
+    #
+    #   __init__
+    #   Constructor
+    # 
     def __init__(this, data):
         this.data = data
         this.next = None
 
 class LinkedList:
+    #
+    #   __init__
+    #   Constructor
+    #
     def __init__(this):
         this.m_head = None
 
+    #
+    #   display
+    #   Print linked list.
+    #
     def display(this):
         tempString = "list = "
         tempNode = this.m_head
@@ -31,64 +48,75 @@ class LinkedList:
             if tempNode is not None:
                 tempString += ", "
         print(tempString)
-        
+
+    #
+    #   append
+    #   Add new element to linked list.
+    #
     def append(this, data):
-        newNode, tempNode, tempHead = Node(data), this.m_head, None
+        newNode, tempNode = Node(data), this.m_head
         print(f"added node with data \'{data}\' to linked list.")
 
         if this.m_head is None:
             this.m_head = newNode
             return
-
+        
+        this.m_head = tempNode
         while tempNode is not None:
-            if tempHead is None:
-                # set temp head ptr to new head
-                # node
-                tempHead = tempNode
             if tempNode.next is None:
-                # assign new node to the end of the
-                # linked list
                 tempNode.next = newNode
                 break
             tempNode = tempNode.next # go through next
-        this.m_head = tempHead # assign the newly linked head to this.m_head
-
+            
+    #
+    #   prepend
+    #   Add new element to the start of a linked list.
+    #
     def prepend(this, data):
         print(f"added node with data \'{data}\' to linked list.")
         newNode = Node(data)
         newNode.next = this.m_head
         this.m_head = newNode
-
+        
+    #
+    #   remove
+    #   Remove one instance of the given unwanted data from
+    #   the linked list.
+    #
     def remove(this, data):
-        tempHead, tempTail, tempNext, tempNode = None, None, None, this.m_head
-        removed = False
+        removed, tempTail, tempNext, tempNode = False, None, None, this.m_head
 
         # rebuild linked list to exclude the node(s) that
-        # has data we don't want
+        # has data we don't want.
+        
+        this.m_head = None
         
         while tempNode is not None:
             tempNext = tempNode.next
             tempNode.next = None
             
-            if tempNode.data != data:
-                if tempHead is None:
-                    tempHead = tempTail = tempNode
+            # relink the head of the linked list if we have
+            # already removed the desired element or the node's
+            # data is not that of our unwanted element.
+            
+            if removed is True or tempNode.data != data:
+                if this.m_head is None:
+                    this.m_head = tempTail = tempNode
                 else:
                     tempTail.next = tempNode
                     tempTail = tempNode
             else:
                 removed = True
-                
             tempNode = tempNext
-        this.m_head = tempHead
 
-        if removed:
-            print(f"succesfully removed element with data \'{data}\'")
-        else:
-            print(f"element with data \'{data}\' does not exist in linked list")
+        if removed: print(f"succesfully removed element with data \'{data}\'")
+        else: print(f"element with data \'{data}\' does not exist in linked list")
 
 class dvInterface:
+    #   Linked list object.
     m_list = LinkedList()
+
+    #   Const. interface string.
     m_interfaceString = str(
         "enter no# of operation you'd like to do.\n"
         "1. append\n"
@@ -98,26 +126,43 @@ class dvInterface:
         "--> "
     )
     
+    #
+    #   __init__
+    #   Constructor
+    # 
     def __init__(this):
         pass
 
-    # wrappers for some interface stuff
+    #   Wrappers for linked list methods.
+    
+    #
+    #   interface_append
+    #
     def interface_append(this):
         data = input("append --> ")
         this.m_list.append(data)
 
+    #
+    #   interface_prepend
+    #
     def interface_prepend(this):
         data = input("prepend --> ")
         this.m_list.prepend(data)
 
+    #
+    #   interface_remove
+    #
     def interface_remove(this):
         data = input("remove --> ")
         this.m_list.remove(data)
 
+    #
+    #   interface_display
+    #
     def interface_display(this):
         this.m_list.display()
 
-    # function ptr table
+    #   Function pointer table.
     m_fnTable = (
         interface_append,
         interface_prepend,
@@ -125,6 +170,10 @@ class dvInterface:
         interface_display
     )
 
+    #
+    #   draw
+    #   Print basic interface.
+    #
     def draw(this):
         selection = dvUtil.input_to_int(this.m_interfaceString) - 1
         if dvUtil.in_range(selection, 0, 3):
@@ -133,7 +182,7 @@ class dvInterface:
             print("invalid mode selected!")
         
 
-# create interface object
+#   Create global interface object.
 interface = dvInterface()
 
 if __name__ is "__main__":
