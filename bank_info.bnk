@@ -1,0 +1,5 @@
+000-000 {
+	name = derek;
+	password = abc;
+	balance = 999.0;
+}
